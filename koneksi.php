@@ -1,7 +1,7 @@
 <?php
 
 $databaseHost = 'localhost';
-$databaseName = 'sikucing';
+$databaseName = 'siobat';
 $databaseUsername = 'root';
 $databasePassword = '';
 

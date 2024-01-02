@@ -10,29 +10,32 @@
         // Check if the patient has already registered
         $check_query = "SELECT * FROM daftar_poli WHERE id_pasien = '".$_SESSION['id_pasien']."'";
         $check_result = $mysqli->query($check_query);
-        if ($check_result->num_rows > 0) {
-            // echo "<script>alert('Anda sudah Mengantri Untuk Hari ini!!');</script>";
-            $error = "Anda sudah mengantri hari ini!";
-        } else {
-            // Check if the form fields are not empty
-            $query = "SELECT MAX(no_antrian) as max_no FROM daftar_poli";
-            $result = $mysqli->query($query);
-            $row = $result->fetch_assoc();
-            $no_antrian = $row['max_no'] + 1;
+        
+        // Check if the form fields are not empty
+        $query = "SELECT MAX(no_antrian) as max_no FROM daftar_poli WHERE id_jadwal = '$id_jadwal'";
+        $result = $mysqli->query($query);
+        $row = $result->fetch_assoc();
+        $no_antrian = $row['max_no'] !== null ? $row['max_no'] + 1 : 1;
 
-            // Insert the new poli registration into the daftar_poli table
-            $insert_query = "INSERT INTO daftar_poli (id_pasien, id_jadwal, keluhan, no_antrian) VALUES ('".$_SESSION['id_pasien']."', '$id_jadwal', '$keluhan', '$no_antrian')";
-            if (mysqli_query($mysqli, $insert_query)) {
-                // echo "<script>alert('No antrian anda adalah $no_antrian');</script>";
-                $success = "No antrian anda adalah $no_antrian";
-                // $button_disabled = "disabled";
-                // Redirect to prevent form resubmission
-                header("Location: index.php?page=rawatJalan&no_antrian=$no_antrian");
-            } else {
-                $error = "Pendaftaran gagal";
-            }
+        // Insert the new poli registration into the daftar_poli table
+        $insert_query = "INSERT INTO daftar_poli (id_pasien, id_jadwal, keluhan, no_antrian, tanggal) VALUES ('".$_SESSION['id_pasien']."', '$id_jadwal', '$keluhan', '$no_antrian', NOW())";
+        if (mysqli_query($mysqli, $insert_query)) {
+            // echo "<script>alert('No antrian anda adalah $no_antrian');</script>";
+            $success = "No antrian anda adalah $no_antrian";
+            // $button_disabled = "disabled";
+            // Redirect to prevent form resubmission
+            header("Location: index.php?page=rawatJalan&no_antrian=$no_antrian");
+        } else {
+            $error = "Pendaftaran gagal";
         }
     }
+
+$query = "SELECT dokter.id AS dokter_id, dokter.nama AS dokter_nama, jadwal_periksa.id AS jadwal_id, jadwal_periksa.hari AS hari, jadwal_periksa.jam_mulai AS jam_mulai, jadwal_periksa.jam_selesai AS jam_selesai FROM dokter JOIN jadwal_periksa ON dokter.id = jadwal_periksa.id_dokter";
+$result = $mysqli->query($query);
+if (!$result) {
+    die("Query error: " . $mysqli->error);
+}
+$dokter_schedules = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <main id="rawatjalan-page">

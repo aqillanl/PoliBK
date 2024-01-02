@@ -144,7 +144,7 @@
 
             <div class="table-responsive mt-3 px-0">
                 <table class="table text-center">
-                    <thead class="table-primary">
+                    <thead class="table-secondary">
                         <tr>
                             <th valign="middle">No</th>
                             <th valign="middle">NIP</th>
