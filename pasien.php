@@ -13,13 +13,13 @@
         $alamat = $_POST['alamat'];
         $no_ktp = $_POST['no_ktp'];
         $no_hp = $_POST['no_hp'];
-        $no_rm = $_POST['no_rm'];
-        
+        $hashed_ktp = password_hash($no_ktp, PASSWORD_DEFAULT); // Hash the no_ktp
+    
         if (isset($_POST['id'])) {
             $id = $_POST['id'];
-            $sql = "UPDATE pasien SET nama='$nama', alamat='$alamat', no_ktp='$no_ktp', no_hp='$no_hp', no_rm='$no_rm' WHERE id='$id'";
+            $sql = "UPDATE pasien SET nama='$nama', alamat='$alamat', no_ktp='$hashed_ktp', no_hp='$no_hp' WHERE id='$id'";
             $edit = mysqli_query($mysqli, $sql);
-
+    
             echo "
                 <script> 
                     alert('Berhasil mengubah data.');
@@ -27,9 +27,14 @@
                 </script>
             ";
         } else {
-            $sql = "INSERT INTO pasien (nama, alamat, no_ktp, no_hp, no_rm) VALUES ('$nama', '$alamat', '$no_ktp', '$no_hp', '$no_rm')";
+            $result = mysqli_query($mysqli, "SELECT COUNT(*) as total FROM pasien");
+            $row = mysqli_fetch_assoc($result);
+            $totalPasien = $row['total'];
+            
+            $no_rm = date('Y-m-d') . '-' . ($totalPasien + 1);
+            $sql = "INSERT INTO pasien (nama, alamat, no_ktp, no_hp, no_rm) VALUES ('$nama', '$alamat', '$hashed_ktp', '$no_hp', '$no_rm')";
             $tambah = mysqli_query($mysqli, $sql);
-
+    
             echo "
                 <script> 
                     alert('Berhasil menambah data.');
@@ -41,15 +46,32 @@
 
     if (isset($_GET['aksi'])) {
         if ($_GET['aksi'] == 'hapus') {
-            $hapus = mysqli_query($mysqli, "DELETE FROM pasien WHERE id = '" . $_GET['id'] . "'");
-
-            if ($hapus) {
-                echo "
-                    <script> 
-                        alert('Berhasil menghapus data.');
-                        document.location='index.php?page=pasien';
-                    </script>
-                ";
+            $id = $_GET['id'];
+    
+            // Delete the dependent records from the detail_periksa, periksa, daftar_poli and detail_periksa tables
+            $deleteDetailPeriksa = mysqli_query($mysqli, "DELETE FROM detail_periksa WHERE id_periksa IN (SELECT id FROM periksa WHERE id_daftar_poli IN (SELECT id FROM daftar_poli WHERE id_pasien = '$id'))");
+            $deletePeriksa = mysqli_query($mysqli, "DELETE FROM periksa WHERE id_daftar_poli IN (SELECT id FROM daftar_poli WHERE id_pasien = '$id')");
+            $deleteDaftarPoli = mysqli_query($mysqli, "DELETE FROM daftar_poli WHERE id_pasien = '$id'");
+    
+            // If the dependent records are successfully deleted, delete the record from the pasien table
+            if ($deleteDetailPeriksa && $deletePeriksa && $deleteDaftarPoli) {
+                $hapus = mysqli_query($mysqli, "DELETE FROM pasien WHERE id = '$id'");
+    
+                if ($hapus) {
+                    echo "
+                        <script> 
+                            alert('Berhasil menghapus data.');
+                            document.location='index.php?page=pasien';
+                        </script>
+                    ";
+                } else {
+                    echo "
+                        <script> 
+                            alert('Gagal menghapus data: " . mysqli_error($mysqli) . "');
+                            document.location='index.php?page=pasien';
+                        </script>
+                    ";
+                }
             } else {
                 echo "
                     <script> 
@@ -65,11 +87,6 @@
     <div class="container" style="margin-top: 5.5rem;">
         <div class="row">
             <h2 class="ps-0">Halaman Pasien</h2>
-            <!-- <div class="d-flex justify-content-end pe-0">
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#tambahDokter">
-                    <i class="fa-regular fa-plus"></i> Tambah
-                </button>
-            </div> -->
             <div class="container">
                 <form action="" method="POST" onsubmit="return(validate());">
                     <?php
@@ -77,7 +94,6 @@
                     $alamat = '';
                     $no_ktp = '';
                     $no_hp = '';
-                    $no_rm = '';
                     if (isset($_GET['id'])) {
                         $get = mysqli_query($mysqli, "SELECT * FROM pasien 
                                 WHERE id='" . $_GET['id'] . "'");
@@ -86,7 +102,6 @@
                             $alamat = $row['alamat'];
                             $no_ktp = $row['no_ktp'];
                             $no_hp = $row['no_hp'];
-                            $no_rm = $row['no_rm'];
                         }
                     ?>
                         <input type="hidden" name="id" value="<?php echo $_GET['id'] ?>">
@@ -108,10 +123,6 @@
                     <div class="mb-3 w-25">
                         <label for="no_hp">No. HP <span class="text-danger">*</span></label>
                         <input type="number" name="no_hp" class="form-control" required placeholder="08xxxx" value="<?php echo $no_hp ?>">
-                    </div>
-                    <div class="mb-3 w-25">
-                        <label for="no_rm">No. RM <span class="text-danger">*</span></label>
-                        <input type="number" name="no_rm" class="form-control" required placeholder="Masukkan No. RM" value="<?php echo $no_rm ?>">
                     </div>
                     <div class="d-flex justify-content-end mt-2">
                         <button type="submit" name="simpanData" class="btn btn-primary">Simpan</button>
@@ -157,12 +168,9 @@
                                         </a>
                                     </td>
                                 </tr>
-
                         <?php endwhile; ?>
                     </tbody>
                 </table>
-                        
-
             </div>
         </div>
     </div>

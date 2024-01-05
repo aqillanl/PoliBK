@@ -11,7 +11,7 @@
 
             <div class="table-responsive mt-3 px-0">
                 <table class="table text-center">
-                    <thead class="table-primary">
+                    <thead class="table-secondary">
                         <tr>
                             <th valign="middle">No</th>
                             <th valign="middle">Nama Pasien</th>
@@ -22,7 +22,6 @@
                             <th valign="middle">Catatan</th>
                             <th valign="middle">Biaya Periksa</th>
                             <th valign="middle">Nama Obat</th>
-                            <th valign="middle" style="width: 0.5%;" colspan="2">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -31,11 +30,6 @@
                         $result = mysqli_query($mysqli, "
                         SELECT daftar_poli.*, pasien.nama AS nama, jadwal_periksa.hari, periksa.tgl_periksa, periksa.catatan, periksa.biaya_periksa, obat.nama_obat AS nama_obat
                         FROM daftar_poli
-                        JOIN (
-                            SELECT id_pasien, MAX(tanggal) as max_tanggal
-                            FROM daftar_poli
-                            GROUP BY id_pasien
-                        ) as latest_poli ON daftar_poli.id_pasien = latest_poli.id_pasien AND daftar_poli.tanggal = latest_poli.max_tanggal
                         JOIN jadwal_periksa ON daftar_poli.id_jadwal = jadwal_periksa.id 
                         JOIN pasien ON daftar_poli.id_pasien = pasien.id
                         LEFT JOIN periksa ON daftar_poli.id = periksa.id_daftar_poli
@@ -56,16 +50,6 @@
                                     <td><?php echo $data['catatan'] ?></td>
                                     <td><?php echo $data['biaya_periksa'] ?></td>
                                     <td><?php echo $data['nama_obat'] ?></td>
-                                    <td>
-                                        <a class="btn btn-sm btn-warning text-white" href="index.php?page=dokter&id=<?php echo $data['id'] ?>">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="index.php?page=dokter&id=<?php echo $data['id'] ?>&aksi=hapus" class="btn btn-sm btn-danger text-white">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </a>
-                                    </td>
                                 </tr>
                         <?php endwhile; ?>
                     </tbody>

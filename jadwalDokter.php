@@ -16,33 +16,46 @@
         
         if (isset($_POST['id'])) {
             $id = $_POST['id'];
-            $sql = "UPDATE jadwal_periksa SET id_dokter='$id_dokter', hari='$hari', jam_mulai='$jam_mulai', jam_selesai='$jam_selesai' WHERE id='$id'";
-            $edit = mysqli_query($mysqli, $sql);
+            $stmt = $mysqli->prepare("UPDATE jadwal_periksa SET id_dokter=?, hari=?, jam_mulai=?, jam_selesai=? WHERE id=?");
+            $stmt->bind_param("isssi", $id_dokter, $hari, $jam_mulai, $jam_selesai, $id);
 
-            echo "
-                <script> 
-                    alert('Berhasil mengubah data.');
-                    document.location='index.php?page=jadwalDokter';
-                </script>
-            ";
+            if ($stmt->execute()) {
+                echo "
+                    <script> 
+                        alert('Berhasil mengubah data.');
+                        document.location='index.php?page=jadwalDokter';
+                    </script>
+                ";
+            } else {
+                // Handle error
+            }
+
+            $stmt->close();
         } else {
-            $sql = "INSERT INTO jadwal_periksa (id_dokter, hari, jam_mulai, jam_selesai) VALUES ('$id_dokter', '$hari', '$jam_mulai', '$jam_selesai')";
-            $tambah = mysqli_query($mysqli, $sql);
+            $stmt = $mysqli->prepare("INSERT INTO jadwal_periksa (id_dokter, hari, jam_mulai, jam_selesai) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("isss", $id_dokter, $hari, $jam_mulai, $jam_selesai);
 
-            echo "
-                <script> 
-                    alert('Berhasil menambah data.');
-                    document.location='index.php?page=jadwalDokter';
-                </script>
-            ";
+            if ($stmt->execute()) {
+                echo "
+                    <script> 
+                        alert('Berhasil menambah data.');
+                        document.location='index.php?page=jadwalDokter';
+                    </script>
+                ";
+            } else {
+                // Handle error
+            }
+
+            $stmt->close();
         }
     }
 
     if (isset($_GET['aksi'])) {
         if ($_GET['aksi'] == 'hapus') {
-            $hapus = mysqli_query($mysqli, "DELETE FROM pasien WHERE id = '" . $_GET['id'] . "'");
+            $stmt = $mysqli->prepare("DELETE FROM pasien WHERE id = ?");
+            $stmt->bind_param("i", $_GET['id']);
 
-            if ($hapus) {
+            if ($stmt->execute()) {
                 echo "
                     <script> 
                         alert('Berhasil menghapus data.');
@@ -57,6 +70,8 @@
                     </script>
                 ";
             }
+
+            $stmt->close();
         }
     }
 ?>

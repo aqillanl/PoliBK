@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['no_rm'] = $no_rm; // Store no_rm in session
                 echo "<script>
                 alert('Pendaftaran Berhasil. Nomor RM Anda adalah: $no_rm'); 
-                document.location='index.php?page=daftarpoli';
+                document.location='index.php?page=cekRM';
                 </script>";
             } else {
                 $error = "Pendaftaran gagal";
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </form>
                     <div class="text-center">
-                        <p class="mt-3">Sudah Terdaftar? <a href="index.php?page=loginPasien">Login</a></p>
+                        <p class="mt-3">Sudah Terdaftar? <a href="index.php?page=loginPasien">Cek Nomor RM</a></p>
                     </div>
                 </div>
             </div>

@@ -93,7 +93,9 @@ include_once("koneksi.php");
     if (isset($_GET['page'])) {
         include($_GET['page'] . ".php");
     } else {
-        echo "<br><h2>Selamat Datang di Sistem Informasi Poliklinik";
+        echo "<div style='background-image: url(images/bg.jpg); background-size: 500px; padding: 100px 0; text-align: center; color: #000000;'>";
+        echo "<h2>Selamat Datang di Sistem Informasi Poliklinik</h2>";
+        echo "</div>";;
 
         if (isset($_SESSION['username'])) {
             //jika sudah login tampilkan username

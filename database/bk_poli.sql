@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Waktu pembuatan: 02 Jan 2024 pada 14.13
+-- Waktu pembuatan: 05 Jan 2024 pada 19.50
 -- Versi server: 10.4.21-MariaDB
 -- Versi PHP: 8.2.4
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `siobat`
+-- Database: `bk_poli`
 --
 
 -- --------------------------------------------------------
@@ -32,26 +32,16 @@ CREATE TABLE `daftar_poli` (
   `id_pasien` int(10) UNSIGNED NOT NULL,
   `id_jadwal` int(10) UNSIGNED NOT NULL,
   `keluhan` text NOT NULL,
-  `no_antrian` int(10) UNSIGNED NOT NULL
+  `no_antrian` int(10) UNSIGNED NOT NULL,
+  `tanggal` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data untuk tabel `daftar_poli`
 --
 
-INSERT INTO `daftar_poli` (`id`, `id_pasien`, `id_jadwal`, `keluhan`, `no_antrian`) VALUES
-(1, 19, 1, 'habis ditakedown undertaker, sakit sekali dok punggungku', 1),
-(3, 13, 2, 'Waduh, lupa sakitnya apa dok', 1),
-(5, 19, 1, 'mampet bang', 2),
-(6, 19, 1, 'Mencret', 3),
-(7, 19, 2, 'Mencret diare', 2),
-(8, 19, 1, 'Mual dok', 4),
-(9, 19, 2, 'Muntah muntah', 3),
-(10, 16, 1, 'Hola Hola hola', 5),
-(11, 16, 2, 'hola hola hola', 4),
-(12, 17, 1, 'please dok', 6),
-(13, 16, 1, 'bisa gak dok', 7),
-(14, 13, 2, 'Too High to be true', 5);
+INSERT INTO `daftar_poli` (`id`, `id_pasien`, `id_jadwal`, `keluhan`, `no_antrian`, `tanggal`) VALUES
+(23, 5, 3, 'jantung berdetak keras', 1, '2024-01-05 15:52:16');
 
 -- --------------------------------------------------------
 
@@ -64,6 +54,13 @@ CREATE TABLE `detail_periksa` (
   `id_periksa` int(10) UNSIGNED NOT NULL,
   `id_obat` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data untuk tabel `detail_periksa`
+--
+
+INSERT INTO `detail_periksa` (`id`, `id_periksa`, `id_obat`) VALUES
+(19, 83, 1);
 
 -- --------------------------------------------------------
 
@@ -86,10 +83,12 @@ CREATE TABLE `dokter` (
 --
 
 INSERT INTO `dokter` (`id`, `nama`, `alamat`, `no_hp`, `id_poli`, `nip`, `password`) VALUES
-(1, 'dr. Bram', 'jalan ga tau', '083424212321', 1, 903218321, '$2y$10$C4HWoWE.zdZ81obprGJryudnU/CUHL4qRc0i8mzxnnjsK8lUkMWxC'),
-(2, 'dr. liem ceng hoo', 'Heartman\'s Lab', '08639284892', 2, 903218117, '$2y$10$k1clkIKC/nTjsYxsRDrB4.5RPMqXbYih68Rw8B2wtZlmB.3KXtrIy'),
-(3, 'dr. Ngeslepet Sulfat', 'jalan Ngeslepet Sulfat', '087927482648', 2, 903218116, '$2y$10$gxqy8XF3feZm1roMV14e6eqeAnUNuYL9vNLPOCqHTN7q.o1mma6tq'),
-(4, 'dr. liem ceng hoo', 'kudus getas', '0816362573788', 3, 1234567, '$2y$10$igHontCUUByqUjuiNJWs2e35w95ztAq.DljMVxsa7TIjxhKI9/bBy');
+(1, 'dr. Bram', 'Semarang', '083424212321', 1, 903218321, '$2y$10$R1Cx/1p6VWxeT.uW6/GLpO6ydqEri079O3vAMCBzS0NUzq00bnQ4.'),
+(2, 'dr. Heartman', 'Semarang', '08639284892', 2, 903218117, '$2y$10$gguvWIkx7qoNCgCmtLDj8upxPVRZGaD3yTjgEpSHDr.G8i7nb8nGO'),
+(3, 'dr. Sulfat', 'Semarang', '087927482648', 2, 903218116, '$2y$10$EnjXVjLRqU/t7lD/GIgxmuJC2rFyhcGM1I9V0ytqwJ5/akIUos6U.'),
+(4, 'dr. PURWITA ANDARYANI', 'Semarang', '083424212111', 7, 2147483647, '$2y$10$hYX4v1MUZrQ.67XAZK8gGOLPShatWQ0bgapdId.3fIV6Tawb.EzPa'),
+(5, 'dr. LILIA DEWIYANTI, SpA, Msi.Med', 'Semarang', '087927482276', 4, 2147483647, '$2y$10$LWUpTTxzx2sq.Rk.sdOo2uovAkUbAFOyWmJAXGGorVT5jRVvbAxtS'),
+(6, 'dr. SWANITA WOYKA, Sp.An.', 'Semarang', '08287779273', 2, 2147483647, '$2y$10$Q2P5QOA4WalqrkRVbo0l9OmdXc.38PPQvvmAd33kQmaKrH6lxr4FW');
 
 -- --------------------------------------------------------
 
@@ -111,7 +110,12 @@ CREATE TABLE `jadwal_periksa` (
 
 INSERT INTO `jadwal_periksa` (`id`, `id_dokter`, `hari`, `jam_mulai`, `jam_selesai`) VALUES
 (1, 1, 'Senin', '13:00:00', '15:00:00'),
-(2, 2, 'Selasa', '10:00:00', '12:00:00');
+(2, 2, 'Selasa', '10:00:00', '12:00:00'),
+(3, 3, 'Kamis', '20:16:00', '23:19:00'),
+(4, 2, 'Kamis', '10:50:00', '00:50:00'),
+(5, 4, 'Selasa', '12:30:00', '16:30:00'),
+(6, 5, 'Rabu', '10:30:00', '14:30:00'),
+(7, 6, '', '14:30:00', '18:30:00');
 
 -- --------------------------------------------------------
 
@@ -131,8 +135,10 @@ CREATE TABLE `obat` (
 --
 
 INSERT INTO `obat` (`id`, `nama_obat`, `kemasan`, `harga`) VALUES
-(1, 'sulfat', 'plastik', 12345),
-(2, 'asam basa', 'tablet', 12);
+(1, 'Termorex Patch Bayi & Anak', 'Sachet    ', 9000),
+(2, 'Obh Combi Anak Batuk Flu 60ml ', 'Botol', 21000),
+(3, 'Paracetamol If 500mg', 'Tablet', 5000),
+(4, 'Imboost Force', 'Tablet    ', 74000);
 
 -- --------------------------------------------------------
 
@@ -154,12 +160,12 @@ CREATE TABLE `pasien` (
 --
 
 INSERT INTO `pasien` (`id`, `nama`, `alamat`, `no_ktp`, `no_hp`, `no_rm`) VALUES
-(13, 'Nina', 'Jl.gendru', '$2y$10$LbfOP5M2AA2bMPSiJJ1k4uvFrLTUFZ2KVFxwYJozfv1nlMlsayvWa', '0877379414432', '202312241'),
-(14, 'Dini', 'Jl. Randu', '$2y$10$Y5OsSIkxxztqQasnL.0kc.GacWWRfvjJ2XjlVqtEImg1MVGNpTex2', '093217837981', '2023-12-24-2'),
-(15, 'Sen', 'Jl.gang ', '$2y$10$a63pgDPENKzY2nbplyDQEe517lBpEY42bH2o8XcK1rWEWdhokyjXK', '081342131231', '2023-12-24-3'),
-(16, 'jola', 'Jl. mangga', '$2y$10$72fx6GsoaMw57HwefNdCjuB.8AFuK7lvmNe..2oHhlt7Fm3OStxqW', '086321321345', '2023-12-24-4'),
-(17, 'Johnatan', 'Jl. rindang', '$2y$10$kIdVv/C5r8G9oR1L4RU1VuVzrVX.1CT2bpzX6OSyy0jIV0IoeSCIO', '086328283232', '2023-12-24-5'),
-(19, 'wilson', 'Jl.dandin', '$2y$10$qlGwAyKmSVRXwealLHu3bOruUfGBDvI0Fi627dRss/ipbOg8INm5.', '0873216732176', '2023-12-26-6');
+(2, 'Nina', 'Jl.gendru', '$2y$10$U1H6LgzwtY.flL22.l0uPOLLYdsOjB3WR6RAjjLIqfOwluqtB4Ns6', '08326718321', '2024-01-05-2'),
+(3, 'Dini', 'Jl. Randu', '$2y$10$yAKMShvXk5gubp/LENyEKuJDNb6zy78i0shnyetN9U/qHBmO23suC', '083479826732', '2024-01-05-3'),
+(5, 'Sen', 'Jl.gang ', '$2y$10$oDtmmRREw6YBVt24zJoLQeC3rjrWqx0i5/RTfLpjOxhX3RGg84Kna', '113444', '2024-01-05-4'),
+(6, 'jola', 'Jl. mangga', '$2y$10$RhNnKUQ2VWeO1j70NlX0WuGAUx7iTWaJDcmhH9RqyG3mKKZGdcKia', '08161778922', '2024-01-05-5'),
+(7, 'Johnatan', 'Jl. rindang', '$2y$10$97ii31aHppx1sbJI6YulI.dPeVmfGRq5dmwUP821rxPLUQSPChgZO', '081617789100', '2024-01-05-6'),
+(9, 'wilson', 'Jl.dandin', '$2y$10$mXGL5uu402YdHjfTYM1.Ze6p003VfD9m4ZyD.bRYzdrVEFHR.U3J.', '0873216732176', '2024-01-05-6');
 
 -- --------------------------------------------------------
 
@@ -170,10 +176,17 @@ INSERT INTO `pasien` (`id`, `nama`, `alamat`, `no_ktp`, `no_hp`, `no_rm`) VALUES
 CREATE TABLE `periksa` (
   `id` int(10) UNSIGNED NOT NULL,
   `id_daftar_poli` int(10) UNSIGNED NOT NULL,
-  `id_periksa` datetime NOT NULL,
+  `tgl_periksa` datetime NOT NULL,
   `catatan` text NOT NULL,
   `biaya_periksa` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data untuk tabel `periksa`
+--
+
+INSERT INTO `periksa` (`id`, `id_daftar_poli`, `tgl_periksa`, `catatan`, `biaya_periksa`) VALUES
+(83, 23, '2024-01-05 16:54:40', 'minum obat 3x1', 177000);
 
 -- --------------------------------------------------------
 
@@ -192,9 +205,12 @@ CREATE TABLE `poli` (
 --
 
 INSERT INTO `poli` (`id`, `nama_poli`, `keterangan`) VALUES
-(1, 'poli gigi', 'sakit gigi berlubang'),
-(2, 'poli jantung', 'sakit serangan jantung'),
-(3, 'poli anak', 'sakit pada anak');
+(1, 'poli gigi', 'Spesialisasi dalam perawatan gigi dan masalah kesehatan mulut.'),
+(2, ' Poli Penyakit Dalam', 'Fokus pada diagnosis dan perawatan penyakit dalam, seperti penyakit jantung, ginjal, saluran pencernaan, dan sebagainya.'),
+(4, ' Poli Anak', 'Menyediakan layanan kesehatan khusus untuk bayi, anak-anak, dan remaja.'),
+(5, ' Poli Mata', 'Menangani masalah kesehatan mata, termasuk pemeriksaan mata, kacamata, atau operasi mata.'),
+(6, 'Poli THT ', 'Menyediakan perawatan untuk masalah kesehatan terkait telinga, hidung, tenggorokan, dan gangguan terkaitnya.\r\n'),
+(7, 'Poli Kardiologi', 'Khusus untuk perawatan penyakit jantung.');
 
 -- --------------------------------------------------------
 
@@ -213,7 +229,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `username`, `password`) VALUES
-(1, 'admin', '$2y$10$FPI3zATAWtRhSA1LUxShFOBmvEhwBHSq8JGJ.1p99iQ9KGXgWi8E2');
+(1, 'admin', '$2y$10$WYsiruTYu8tUnrhBdVX6Mu9gBWwfZluYePfsjzpHoGbLZUQeCwusK');
 
 --
 -- Indexes for dumped tables
@@ -266,7 +282,7 @@ ALTER TABLE `pasien`
 --
 ALTER TABLE `periksa`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `id_daftar_poli` (`id_daftar_poli`);
+  ADD KEY `periksa_ibfk_1` (`id_daftar_poli`);
 
 --
 -- Indeks untuk tabel `poli`
@@ -288,49 +304,49 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT untuk tabel `daftar_poli`
 --
 ALTER TABLE `daftar_poli`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT untuk tabel `detail_periksa`
 --
 ALTER TABLE `detail_periksa`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT untuk tabel `dokter`
 --
 ALTER TABLE `dokter`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT untuk tabel `jadwal_periksa`
 --
 ALTER TABLE `jadwal_periksa`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT untuk tabel `obat`
 --
 ALTER TABLE `obat`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT untuk tabel `pasien`
 --
 ALTER TABLE `pasien`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT untuk tabel `periksa`
 --
 ALTER TABLE `periksa`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 
 --
 -- AUTO_INCREMENT untuk tabel `poli`
 --
 ALTER TABLE `poli`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT untuk tabel `user`

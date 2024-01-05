@@ -44,7 +44,50 @@
             <h2 class="ps-0">Data Pasien Saya</h2>
 
             <div class="container">
-                <form action="" method="POST">
+            <form action="" method="POST">
+                    <?php
+                        $id_pasien = '';
+                        $id_dokter = $_SESSION['id'];
+                        $nama_dokter= $_SESSION['nama'];
+                        $tgl_periksa = '';
+                        $catatan = '';
+                        $nama_pasien = '';
+                        $no_antrian = '';
+                        $keluhan = '';
+                        if (isset($_GET['id'])) {
+                            $get = mysqli_query($mysqli, "
+                                SELECT daftar_poli.*, pasien.nama AS nama
+                                FROM daftar_poli
+                                JOIN pasien ON daftar_poli.id_pasien = pasien.id
+                                WHERE daftar_poli.id='" . $_GET['id'] . "'
+                            ");
+                            while ($row = mysqli_fetch_array($get)) {
+                                $id_pasien = $row['id_pasien'];
+                                $nama_pasien = $row['nama'];
+                                $no_antrian = $row['no_antrian'];
+                                $keluhan = $row['keluhan'];
+                            }
+                        }
+                    ?>
+                    <input type="hidden" name="id" value="<?php echo isset($_GET['id']) ? $_GET['id'] : '' ?>">
+                    <input type="hidden" name="id_pasien" value="<?php echo $id_pasien; ?>">
+                    <input type="hidden" name="id_dokter" value="<?php echo $id_dokter; ?>">
+                    <div class="mb-3 w-25">
+                        <label for="no_antrian">No. Antrian <span class="text-danger">*</span></label>
+                        <input disabled type="text" name="no_antrian" class="form-control" required value="<?php echo $no_antrian ?>">
+                    </div>
+                    <div class="mb-3 w-25">
+                        <label for="id_pasien">Nama Pasien <span class="text-danger">*</span></label>
+                        <input disabled type="text" name="id_pasien" class="form-control" required value="<?php echo $nama_pasien ?>">
+                    </div>
+                    <div class="mb-3 w-25">
+                        <label for="id_dokter">Nama Dokter <span class="text-danger">*</span></label>
+                        <input disabled type="text" name="id_dokter" class="form-control" required value="<?php echo $nama_dokter ?>">
+                    </div>
+                    <div class="mb-3 w-25">
+                        <label for="catatan">Catatan <span class="text-danger">*</span></label>
+                        <input type="text" name="catatan" class="form-control" required value="<?php echo $catatan ?>">
+                    </div>
                     <div class="dropdown mb-3 w-25">
                         <label for="id_obat">Obat <span class="text-danger">*</span></label>
                         <select class="form-select" name="id_obat" aria-label="id_obat">
@@ -59,10 +102,6 @@
                             
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="catatan">Catatan <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="catatan" id="catatan" style="resize: none; height: 8rem" required></textarea>
-                    </div>
                     <div class="d-flex justify-content-end mt-2">
                         <button type="submit" name="simpanData" class="btn btn-primary">Simpan</button>
                     </div>
@@ -71,14 +110,12 @@
 
             <div class="table-responsive mt-3 px-0">
                 <table class="table text-center">
-                    <thead class="table-primary">
+                    <thead class="table-secondary">
                         <tr>
                             <th valign="middle">No</th>
                             <th valign="middle">Nama Pasien</th>
                             <th valign="middle">No. Antrian</th>
                             <th valign="middle">Keluhan</th>
-                            <th valign="middle">Hari</th>
-                            <th valign="middle">Waktu</th>
                             <th valign="middle" style="width: 0.5%;" colspan="2">Aksi</th>
                         </tr>
                     </thead>
@@ -106,16 +143,9 @@
                                     <td><?php echo $data['nama'] ?></td>
                                     <td><?php echo $data['no_antrian'] ?></td>
                                     <td><?php echo $data['keluhan'] ?></td>
-                                    <td><?php echo $data['hari'] ?></td>
-                                    <td><?php echo $data['jam_mulai'] . " - " . $data['jam_selesai'] ?></td>
                                     <td>
-                                        <a class="btn btn-sm btn-warning text-white" href="index.php?page=periksa&id=<?php echo $data['id'] ?>">
+                                        <a class="btn btn-sm btn-warning text-white" href="berandaDokter.php?page=periksa&id=<?php echo $data['id'] ?>">
                                             <i class="fa-solid fa-pen-to-square"></i>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="index.php?page=periksa&id=<?php echo $data['id'] ?>&aksi=hapus" class="btn btn-sm btn-danger text-white">
-                                            <i class="fa-solid fa-trash"></i>
                                         </a>
                                     </td>
                                 </tr>
