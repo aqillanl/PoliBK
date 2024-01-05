@@ -39,7 +39,7 @@
                     <div class="card-body">
                         <div class="row d-flex justify-content-center align-items-center px-5 py-4">
                             <div class="col lg-6">
-                                <img src="images/login.svg" class="img-fluid" alt="login-pic">
+                                <img src="images/logd.jpg" class="img-fluid" alt="login-pic">
                             </div>
                             <div class="col-lg-6">
                                 <h1 class="text-center">Login</h1>
