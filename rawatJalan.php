@@ -30,7 +30,7 @@
         }
     }
 
-$query = "SELECT dokter.id AS dokter_id, dokter.nama AS dokter_nama, jadwal_periksa.id AS jadwal_id, jadwal_periksa.hari AS hari, jadwal_periksa.jam_mulai AS jam_mulai, jadwal_periksa.jam_selesai AS jam_selesai FROM dokter JOIN jadwal_periksa ON dokter.id = jadwal_periksa.id_dokter";
+$query = "SELECT dokter.id AS dokter_id, dokter.nama AS dokter_nama, jadwal_periksa.id AS jadwal_id, jadwal_periksa.hari AS hari, jadwal_periksa.jam_mulai AS jam_mulai, jadwal_periksa.jam_selesai AS jam_selesai, jadwal_periksa.statues AS statues FROM dokter JOIN jadwal_periksa ON dokter.id = jadwal_periksa.id_dokter";
 $result = $mysqli->query($query);
 if (!$result) {
     die("Query error: " . $mysqli->error);
@@ -78,7 +78,6 @@ $dokter_schedules = $result->fetch_all(MYSQLI_ASSOC);
                                     </div>
                                 ';
                             }
-                            
                             ?>
                             <div class="row">
                                 <div class="col-6">
@@ -125,10 +124,6 @@ $dokter_schedules = $result->fetch_all(MYSQLI_ASSOC);
                                 <button disabled type="submit" class="btn btn-outline-primary px-4 btn-block">Daftar</button>
                             </div>
                         </form>
-                        <!-- <div class="text-center">
-                            <p class="mt-3">Belum punya akun? <a href="index.php?page=registerUser">Register</a></p>
-                            <p class="mt-3">Login sebagai dokter? <a href="index.php?page=loginDokter">Ya, Saya Dokter</a></p>
-                        </div> -->
                     </div>
                 </div>
             </div>
@@ -201,23 +196,25 @@ $dokter_schedules = $result->fetch_all(MYSQLI_ASSOC);
                 let listGroup = document.querySelector(".list-group");
                 
                 if (data != "") {
-                    listGroup.innerHTML = "";
-                    data.forEach(function(jadwal) {
-                        let listItem = document.createElement('li');
-                        listItem.className = "list-group-item";
-                        listItem.style.cursor = "pointer"
-                        listItem.innerHTML = '<input style="cursor: pointer" class="form-check-input me-1" type="radio" name="id_jadwal" value="' + jadwal.id + '" id="id_jadwal"><label class="form-check-label" for="id_jadwal" style="cursor: pointer">' + jadwal.hari + ', ' + jadwal.jam_mulai + ' - ' + jadwal.jam_selesai + '</label>';
-                        listGroup.appendChild(listItem);
-                    });
-
-                    document.querySelectorAll("input[type=radio]").forEach(function(radio) {
-                    radio.addEventListener("change", function() {
-                        document.querySelector("button[type=submit]").removeAttribute('disabled');
-                    });
+                listGroup.innerHTML = "";
+                data.forEach(function(jadwal) {
+                    let listItem = document.createElement('li');
+                    listItem.className = "list-group-item d-flex justify-content-between mb-1";
+                    listItem.style.cursor = "pointer"
+                    let isDisabled = (jadwal.statues != 1) ? 'disabled' : '';
+                    let status = (jadwal.statues != 1) ? '<p class="bg-danger text-white border rounded p-1 mb-0">Inactive</p>' : '<p class="bg-success text-white border rounded p-1 mb-0">Active</p>';
+                    listItem.innerHTML = '<div><input style="cursor: pointer" class="form-check-input me-1" type="radio" name="id_jadwal" value="' + jadwal.id + '" id="id_jadwal" '+ isDisabled +'><label class="form-check-label" for="id_jadwal" style="cursor: pointer">' + jadwal.hari + ', ' + jadwal.jam_mulai + ' - ' + jadwal.jam_selesai + '</label></div>' + status;
+                    listGroup.appendChild(listItem);
                 });
-                } else {
-                    listGroup.innerHTML = "<li class='list-group-item disabled text-center'>Jadwal tidak tersedia</li>";
-                }
+
+                document.querySelectorAll("input[type=radio]").forEach(function(radio) {
+                radio.addEventListener("change", function() {
+                    document.querySelector("button[type=submit]").removeAttribute('disabled');
+                });
+            });
+            } else {
+                listGroup.innerHTML = "<li class='list-group-item disabled text-center'>Jadwal tidak tersedia</li>";
+            }
             });
         }
     });

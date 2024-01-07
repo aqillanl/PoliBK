@@ -89,13 +89,12 @@ if (isset($_GET['aksi'])) {
                     <div class="d-flex justify-content-end mt-2">
                         <button type="submit" name="simpanData" class="btn btn-primary">Simpan</button>
                     </div>
-    
                 </form>
             </div>
 
             <div class="table-responsive mt-3 px-0">
                 <table class="table text-center">
-                    <thead class="table-secondary">
+                    <thead class="table-primary">
                         <tr>
                             <th valign="middle">No</th>
                             <th valign="middle">Nama Poli</th>
@@ -124,7 +123,6 @@ if (isset($_GET['aksi'])) {
                                         </a>
                                     </td>
                                 </tr>
-
                         <?php endwhile; ?>
                     </tbody>
                 </table>

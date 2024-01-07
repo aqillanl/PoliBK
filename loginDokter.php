@@ -25,7 +25,7 @@
                 $error = "password salah";
             }
         } else {
-            $error = "User tidak ditemukan";
+            $error = "User tidak ditemukan". strval($result->num_rows);
         }
     }
 ?>

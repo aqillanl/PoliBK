@@ -1,15 +1,6 @@
-<?php
-    if (!isset($_SESSION)) {
-        session_start();
-    }
-    if (!isset($_SESSION['username'])) {
-        // Jika pengguna sudah login, tampilkan tombol "Logout"
-        header("Location: index.php?page=loginUser");
-        exit;
-    }
-
+<?php 
     if (isset($_POST['simpanData'])) {
-        $id_dokter = $_POST['id_dokter'];
+        $id_dokter = $_SESSION['id'];
         $hari = $_POST['hari'];
         $jam_mulai = $_POST['jam_mulai'];
         $jam_selesai = $_POST['jam_selesai'];
@@ -26,13 +17,13 @@
         if (isset($_POST['id'])) {
             $id = $_POST['id'];
             $stmt = $mysqli->prepare("UPDATE jadwal_periksa SET id_dokter=?, hari=?, jam_mulai=?, jam_selesai=?, statues=? WHERE id=?");
-            $stmt->bind_param("issssi", $id_dokter, $hari, $jam_mulai, $jam_selesai, $statues, $id);
+            $stmt->bind_param("issssi", $id_dokter, $hari, $jam_mulai, $jam_selesai, $statues,  $id);
     
             if ($stmt->execute()) {
                 echo "
                     <script> 
                         alert('Berhasil mengubah data.');
-                        document.location='index.php?page=jadwalDokter';
+                        document.location='berandaDokter.php?page=aturJadwalDokter';
                     </script>
                 ";
             } else {
@@ -48,7 +39,7 @@
                 echo "
                     <script> 
                         alert('Berhasil menambah data.');
-                        document.location='index.php?page=jadwalDokter';
+                        document.location='berandaDokter.php?page=aturJadwalDokter';
                     </script>
                 ";
             } else {
@@ -61,57 +52,31 @@
 
     if (isset($_GET['aksi'])) {
         if ($_GET['aksi'] == 'hapus') {
-            $id = $_GET['id'];
-    
-            // Delete the record from the jadwal_periksa table
             $stmt = $mysqli->prepare("DELETE FROM jadwal_periksa WHERE id = ?");
-            $stmt->bind_param("i", $id);
-    
+            $stmt->bind_param("i", $_GET['id']);
+
             if ($stmt->execute()) {
-                // Check if there are any jadwal_periksa records that reference the dokter
-                $result = mysqli_query($mysqli, "SELECT * FROM jadwal_periksa WHERE id_dokter = '$id_dokter'");
-                if (mysqli_num_rows($result) == 0) {
-                    // If there are no jadwal_periksa records that reference the dokter, delete the dokter
-                    $stmt = $mysqli->prepare("DELETE FROM dokter WHERE id = ?");
-                    $stmt->bind_param("i", $id_dokter);
-    
-                    if ($stmt->execute()) {
-                        echo "
-                            <script> 
-                                alert('Berhasil menghapus data.');
-                                document.location='index.php?page=jadwalDokter';
-                            </script>
-                        ";
-                    } else {
-                        echo "
-                            <script> 
-                                alert('Gagal menghapus data: " . mysqli_error($mysqli) . "');
-                                document.location='index.php?page=jadwalDokter';
-                            </script>
-                        ";
-                    }
-                } else {
-                    echo "
-                        <script> 
-                            alert('Gagal menghapus data: Dokter masih memiliki jadwal periksa.');
-                            document.location='index.php?page=jadwalDokter';
-                        </script>
-                    ";
-                }
+                echo "
+                    <script> 
+                        alert('Berhasil menghapus data.');
+                        document.location='berandaDokter.php?page=aturJadwalDokter';
+                    </script>
+                ";
             } else {
                 echo "
                     <script> 
                         alert('Gagal menghapus data: " . mysqli_error($mysqli) . "');
-                        document.location='index.php?page=jadwalDokter';
+                        document.location='berandaDokter.php?page=aturJadwalDokter';
                     </script>
                 ";
             }
-    
+
             $stmt->close();
         }
     }
 ?>
-<main id="jadwaldokter-page">
+
+<main id="aturJadwalDokter-page">
     <div class="container" style="margin-top: 5.5rem;">
         <div class="row">
             <h2 class="ps-0">Jadwal Dokter</h2>
@@ -140,14 +105,16 @@
                     ?>
                     <div class="dropdown mb-3 w-25">
                         <label for="id_dokter">Dokter <span class="text-danger">*</span></label>
-                        <select class="form-select" name="id_dokter" aria-label="id_dokter">
+                        <select disabled class="form-select" name="id_dokter" aria-label="id_dokter">
                             <option value="" selected>Pilih Dokter...</option>
                             <?php
-                                $result = mysqli_query($mysqli, "SELECT * FROM dokter");
-                                
-                                while ($data = mysqli_fetch_assoc($result)) {
-                                    $selected = ($data['id'] == $id_dokter) ? 'selected' : '';
-                                    echo "<option value='" . $data['id'] . "' $selected>" . $data['nama'] . "</option>";
+                                $id_dokter = $_SESSION['id'];
+
+                                $result = mysqli_query($mysqli, "SELECT * FROM dokter WHERE id");
+
+                                while($data = mysqli_fetch_assoc($result)) {
+                                    $selected = ($data['id'] == $id_dokter) ? 'selected' : ''; // If the doctor id matches the session id, mark it as selected
+                                    echo "<option $selected value='" . $data['id'] . "'>" . $data['nama'] . "</option>";
                                 }
                             ?>
                         </select>
@@ -156,13 +123,12 @@
                         <label for="hari">Hari <span class="text-danger">*</span></label>
                         <select class="form-select" name="hari" aria-label="hari">
                             <option value="" selected>Pilih Hari...</option>
-                            <?php
-                                $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                                foreach ($days as $day) {
-                                    $selected = ($day == $hari) ? 'selected' : '';
-                                    echo "<option value='$day' $selected>$day</option>";
-                                }
-                            ?>
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jum'at">Jum'at</option>
+                            <option value="Sabtu">Sabtu</option>
                         </select>
                     </div>
                     <div class="mb-3 w-25">
@@ -177,19 +143,36 @@
                         <label for="statues">Status <span class="text-danger">*</span></label>
                         <select class="form-select" name="statues" aria-label="statues">
                             <option value="" selected>Pilih Status...</option>
-                            <?php
-                                $statuses = ['1', '0'];
-                                foreach ($statuses as $status) {
-                                    $selected = ($status == $statues) ? 'selected' : '';
-                                    echo "<option value='$status' $selected>$status</option>";
-                                }
-                            ?>
+                            <option value="1">1</option>
+                            <option value="0">0</option>
                         </select>
                     </div>
                     <div class="d-flex justify-content-end mt-2">
                         <button type="submit" name="simpanData" class="btn btn-primary">Simpan</button>
                     </div>
+    
                 </form>
+                <script>
+                    function checkForm() {
+                        var id_dokter = document.querySelector('select[name="id_dokter"]').value;
+                        var hari = document.querySelector('select[name="hari"]').value;
+                        var jam_mulai = document.querySelector('input[name="jam_mulai"]').value;
+                        var jam_selesai = document.querySelector('input[name="jam_selesai"]').value;
+                        var statues = document.querySelector('select[name="statues"]').value;
+
+                        if(id_dokter == "" || hari == "" || jam_mulai == "" || jam_selesai == "" || statues == "") {
+                            document.querySelector('button[name="simpanData"]').disabled = true;
+                        } else {
+                            document.querySelector('button[name="simpanData"]').disabled = false;
+                        }
+                    }
+
+                    // Call checkForm function every time form inputs change
+                    document.querySelector('form').addEventListener('change', checkForm);
+
+                    // Call checkForm function on page load to ensure button is in correct state
+                    window.onload = checkForm;
+                </script>
             </div>
 
             <div class="table-responsive mt-3 px-0">
@@ -200,14 +183,19 @@
                             <th valign="middle">Nama Dokter</th>
                             <th valign="middle">Hari</th>
                             <th valign="middle" style="width: 25%;" colspan="2">Waktu</th>
-                            <th valign="middle">Status</th>
                             <!-- <th valign="middle">Jam Selesai</th> -->
+                            <th valign="middle">Status</th>
                             <th valign="middle" style="width: 0.5%;" colspan="2">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                            $result = mysqli_query($mysqli, "SELECT dokter.nama, jadwal_periksa.id, jadwal_periksa.hari, jadwal_periksa.jam_mulai, jadwal_periksa.jam_selesai, jadwal_periksa.statues FROM dokter JOIN jadwal_periksa ON dokter.id = jadwal_periksa.id_dokter");
+                            $id_dokter = $_SESSION['id'];
+
+                            $result = mysqli_query($mysqli, "SELECT dokter.nama, jadwal_periksa.id, jadwal_periksa.hari, jadwal_periksa.jam_mulai, jadwal_periksa.jam_selesai, jadwal_periksa.statues 
+                            FROM dokter 
+                            JOIN jadwal_periksa ON dokter.id = jadwal_periksa.id_dokter 
+                            WHERE dokter.id = $id_dokter");
                             $no = 1;
                             while ($data = mysqli_fetch_array($result)) :
                             ?>
@@ -220,17 +208,17 @@
                                     <td>
                                       <?php 
                                         echo ($data['statues'] == 1) 
-                                          ? '<h1 class="badge rounded-pill text-bg-success">Active</h1>' 
-                                          : '<h1 class="badge rounded-pill text-bg-danger">Inactive</h1>'; 
+                                        ? '<h1 class="badge rounded-pill text-bg-success">Active</h1>' 
+                                        : '<h1 class="badge rounded-pill text-bg-danger">Inactive</h1>'; 
                                       ?>
                                     </td>
                                     <td>
-                                        <a class="btn btn-sm btn-warning text-white" href="index.php?page=jadwalDokter&id=<?php echo $data['id'] ?>">
+                                        <a class="btn btn-sm btn-warning text-white" href="berandaDokter.php?page=aturJadwalDokter&id=<?php echo $data['id'] ?>">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
                                     </td>
                                     <td>
-                                        <a href="index.php?page=jadwalDokter&id=<?php echo $data['id'] ?>&aksi=hapus" class="btn btn-sm btn-danger text-white">
+                                        <a href="berandaDokter.php?page=aturJadwalDokter&id=<?php echo $data['id'] ?>&aksi=hapus" class="btn btn-sm btn-danger text-white">
                                             <i class="fa-solid fa-trash"></i>
                                         </a>
                                     </td>
